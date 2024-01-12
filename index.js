@@ -39,7 +39,23 @@ const parser = port.pipe(new ReadlineParser({ delimiter: "\r\n" }));
 
 port.on("open", function () {
   console.log("Serial open.");
-  setInterval(write, 1000, "OK\n");
+  ws_server.on("connection", (ws) => {
+    console.log("connected from client");
+    // 1000msごとに"OK"を送信
+    sendMessage();
+    ws.on("message", function (message) {
+      if (message.indexOf("heartbeat") === -1) {
+        //実際の処理する場合はparseして処理していきます
+        const obj = JSON.parse(message);
+        // console.log("--- obj --- \n", obj);
+        if (obj.blinkSpeed !== 0) {
+          // 瞬目回数をカウント
+          count = count + 1;
+          console.log("blink count: ", count);
+        }
+      }
+    });
+  });
 });
 
 parser.on("data", function (data) {
@@ -54,4 +70,8 @@ function write(data) {
       console.log("Results: " + results);
     }
   });
+}
+
+async function sendMessage() {
+  await setInterval(write, 3000, "OK\n");
 }
