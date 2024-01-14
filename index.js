@@ -1,13 +1,17 @@
 "use strict";
-const server = require("ws").Server;
-const ws_server = new server({ port: 5001 });
+const { Server } = require("ws");
 const { SerialPort } = require("serialport");
 const { ReadlineParser } = require("@serialport/parser-readline");
-const port = new SerialPort({ path: "/dev/cu.usbmodem11401", baudRate: 9600 });
-const parser = port.pipe(new ReadlineParser({ delimiter: "\r\n" }));
+
+const ws_server = new Server({ port: 5001 });
+const serialPort = new SerialPort({
+  path: "/dev/cu.usbmodem11401",
+  baudRate: 9600,
+});
+const parser = serialPort.pipe(new ReadlineParser({ delimiter: "\r\n" }));
 var count = 0;
 
-port.on("open", function () {
+serialPort.on("open", function () {
   console.log("Serial open.");
   ws_server.on("connection", (ws) => {
     console.log("connected from client");
@@ -34,7 +38,7 @@ parser.on("data", function (data) {
 
 function write(data) {
   console.log("Write: " + data);
-  port.write(new Buffer(data), function (err, results) {
+  serialPort.write(Buffer.from(data), function (err, results) {
     if (err) {
       console.log("Err: " + err);
       console.log("Results: " + results);
