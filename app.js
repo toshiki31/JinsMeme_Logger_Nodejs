@@ -24,10 +24,6 @@ let blinkCount = 0;
 let pushCount = 0;
 
 const init = () => {
-  // httpServer.listen(TCP_PORT, function () {
-  //   console.log("HTTP server listening on *:" + TCP_PORT);
-  // });
-
   serialPort.on("open", function () {
     console.log("Serial port open.");
     wsServer.on("connection", (ws) => {
