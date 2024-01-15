@@ -41,6 +41,7 @@ const init = () => {
           }
         }
       });
+      // websocketを閉じたときの処理
       ws.on("close", function () {
         console.log("WebSocket closed");
       });
