@@ -4,22 +4,26 @@ import { createServer } from "http";
 import { WebSocketServer } from "ws";
 import { SerialPort } from "serialport";
 import { ReadlineParser } from "@serialport/parser-readline";
+import { createObjectCsvWriter } from "csv-writer";
 
 const WEBSOCKET_PORT = 5001;
 const SERIAL_PORT_PATH = "/dev/cu.usbmodem11401";
 
-const httpServer = createServer();
 const wsServer = new WebSocketServer({ port: WEBSOCKET_PORT });
 const serialPort = new SerialPort({ path: SERIAL_PORT_PATH, baudRate: 9600 });
 const parser = serialPort.pipe(new ReadlineParser({ delimiter: "\r\n" }));
+const csvWriter = createObjectCsvWriter({
+  path: "out.csv",
+  header: [
+    { id: "name", title: "name" },
+    { id: "date", title: "date" },
+  ],
+});
+const records = [];
 let blinkCount = 0;
 let pushCount = 0;
 
 const init = () => {
-  // httpServer.listen(TCP_PORT, function () {
-  //   console.log("HTTP server listening on *:" + TCP_PORT);
-  // });
-
   serialPort.on("open", function () {
     console.log("Serial port open.");
     wsServer.on("connection", (ws) => {
@@ -38,12 +42,21 @@ const init = () => {
             const today = new Date(time);
             console.log("Blink count: ", blinkCount);
             console.log("Blink date: ", today);
+            const record = {
+              name: "blink",
+              date: today,
+            };
+            records.push(record);
           }
         }
       });
       // websocketを閉じたときの処理
       ws.on("close", function () {
         console.log("WebSocket closed");
+        // csvWriter
+        csvWriter.writeRecords(records).then(() => {
+          console.log("...Done");
+        });
       });
     });
   });
@@ -55,6 +68,11 @@ parser.on("data", function (data) {
   const today = new Date(time);
   console.log("Push count: ", pushCount);
   console.log("Push date: ", today);
+  const record = {
+    name: "push",
+    date: today,
+  };
+  records.push(record);
 });
 
 const write = (data) => {
