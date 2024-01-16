@@ -1,6 +1,5 @@
 "use strict";
 
-import { createServer } from "http";
 import { WebSocketServer } from "ws";
 import { SerialPort } from "serialport";
 import { ReadlineParser } from "@serialport/parser-readline";
@@ -22,18 +21,21 @@ const csvWriter = createObjectCsvWriter({
 const records = [];
 let blinkCount = 0;
 let pushCount = 0;
+let timerId;
 
 const init = () => {
   serialPort.on("open", function () {
     console.log("Serial port open.");
     wsServer.on("connection", (ws) => {
       console.log("WebSocket connected from client");
-      // setInterval()の第２引数(ms)ごとに"OK"を送信
-      sendMessage();
+      // 初回タイマー開始
+      // setTimeout()の第２引数(ms)ごとに"OK"を送信
+      timerId = setTimeout(write, 3000, "OK\n");
+      console.log(`Timer is on: ${timerId}`);
 
       ws.on("message", function (message) {
         if (message.indexOf("heartbeat") === -1) {
-          //実際の処理する場合はparseして処理していきます
+          //実際の処理する場合はparseして処理
           const obj = JSON.parse(message);
           if (obj.blinkSpeed !== 0) {
             // 瞬目回数をカウント
@@ -41,12 +43,16 @@ const init = () => {
             const time = Date.now();
             const today = new Date(time);
             console.log("Blink count: ", blinkCount);
-            console.log("Blink date: ", today);
+            // console.log("Blink date: ", today);
             const record = {
               name: "blink",
               date: today,
             };
             records.push(record);
+            clearTimeout(timerId); // タイマー停止
+            console.log(`Timer is off: ${timerId}\n**********`);
+            timerId = setTimeout(write, 3000, "OK\n"); // タイマー再開
+            console.log(`B Timer is on: ${timerId}`);
           }
         }
       });
@@ -61,6 +67,8 @@ const init = () => {
     });
   });
 };
+
+// シリアルポートからのデータを受信したときの処理
 parser.on("data", function (data) {
   console.log("Data from serial port: " + data);
   pushCount = pushCount + 1;
@@ -73,6 +81,9 @@ parser.on("data", function (data) {
     date: today,
   };
   records.push(record);
+  console.log(`Timer pushed: ${timerId}\n**********`);
+  timerId = setTimeout(write, 3000, "OK\n");
+  console.log(`A Timer is on: ${timerId}`);
 });
 
 const write = (data) => {
@@ -85,8 +96,12 @@ const write = (data) => {
   });
 };
 
-const sendMessage = async () => {
-  setInterval(write, 3000, "OK\n");
-};
+// const sendMessage = async (isOn) => {
+//   setTimeout(write, 3000, "OK\n");
+//   if (!isOn) {
+//     clearTimeout(timerId);
+//     console.log("Timer is off");
+//   }
+// };
 
 init();
