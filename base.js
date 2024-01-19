@@ -18,7 +18,7 @@ const records = [];
 let blinkCount = 0;
 
 const init = () => {
-  console.log("base_expriment stared");
+  console.log("base_experiment stared");
   wsServer.on("connection", (ws) => {
     console.log("WebSocket connected from client");
 
