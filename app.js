@@ -5,6 +5,7 @@ import { SerialPort } from "serialport";
 import { ReadlineParser } from "@serialport/parser-readline";
 import { createObjectCsvWriter } from "csv-writer";
 
+// JINS MEMEのWebSocketサーバーのポート番号
 const WEBSOCKET_PORT = 5001;
 const SERIAL_PORT_PATH = "/dev/cu.usbmodem11401";
 
@@ -12,7 +13,7 @@ const wsServer = new WebSocketServer({ port: WEBSOCKET_PORT });
 const serialPort = new SerialPort({ path: SERIAL_PORT_PATH, baudRate: 9600 });
 const parser = serialPort.pipe(new ReadlineParser({ delimiter: "\r\n" }));
 const csvWriter = createObjectCsvWriter({
-  path: "out.csv",
+  path: "airpuf_out.csv",
   header: [
     { id: "name", title: "name" },
     { id: "date", title: "date" },
