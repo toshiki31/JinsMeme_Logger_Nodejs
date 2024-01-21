@@ -77,12 +77,12 @@ parser.on("data", function (data) {
   console.log("Arduino: " + data);
   pushCount = pushCount + 1;
   const time = Date.now();
-  const today = new Date(time);
+  // const today = new Date(time);
   console.log("Push count: ", pushCount);
-  console.log("Push date: ", today);
+  // console.log("Push date: ", time);
   const record = {
     name: "push",
-    date: today,
+    date: time,
   };
   records.push(record);
   // console.log(`Timer pushed: ${timerId}\n**********`);
