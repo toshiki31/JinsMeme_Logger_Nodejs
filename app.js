@@ -12,8 +12,9 @@ const SERIAL_PORT_PATH = "/dev/cu.usbmodem11401";
 const wsServer = new WebSocketServer({ port: WEBSOCKET_PORT });
 const serialPort = new SerialPort({ path: SERIAL_PORT_PATH, baudRate: 57600 });
 const parser = serialPort.pipe(new ReadlineParser({ delimiter: "\r\n" }));
+const now = Date.now();
 const csvWriter = createObjectCsvWriter({
-  path: "airpuf_out.csv",
+  path: `${now}_airpuf.csv`,
   header: [
     { id: "name", title: "name" },
     { id: "date", title: "date" },

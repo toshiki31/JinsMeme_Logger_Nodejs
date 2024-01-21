@@ -7,8 +7,9 @@ import { createObjectCsvWriter } from "csv-writer";
 const WEBSOCKET_PORT = 5001;
 
 const wsServer = new WebSocketServer({ port: WEBSOCKET_PORT });
+const now = Date.now();
 const csvWriter = createObjectCsvWriter({
-  path: "base_out.csv",
+  path: `${now}_base.csv`,
   header: [
     { id: "name", title: "name" },
     { id: "date", title: "date" },
