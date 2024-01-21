@@ -49,12 +49,12 @@ const init = () => {
             // 瞬目回数をカウント
             blinkCount = blinkCount + 1;
             const time = Date.now();
-            const today = new Date(time);
+            // const today = new Date(time);
             console.log("Blink count: ", blinkCount);
-            console.log("Blink date: ", today);
+            // console.log("Blink date: ", today);
             const record = {
               name: "blink",
-              date: today,
+              date: time,
             };
             records.push(record);
           }
