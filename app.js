@@ -10,7 +10,7 @@ const WEBSOCKET_PORT = 5001;
 const SERIAL_PORT_PATH = "/dev/cu.usbmodem11401";
 
 const wsServer = new WebSocketServer({ port: WEBSOCKET_PORT });
-const serialPort = new SerialPort({ path: SERIAL_PORT_PATH, baudRate: 57600 });
+const serialPort = new SerialPort({ path: SERIAL_PORT_PATH, baudRate: 9600 });
 const parser = serialPort.pipe(new ReadlineParser({ delimiter: "\r\n" }));
 const now = Date.now();
 const csvWriter = createObjectCsvWriter({
@@ -75,19 +75,24 @@ const init = () => {
 // シリアルポートからのデータを受信したときの処理
 parser.on("data", function (data) {
   console.log("Arduino: " + data);
-  pushCount = pushCount + 1;
-  const time = Date.now();
-  // const today = new Date(time);
-  console.log("Push count: ", pushCount);
-  // console.log("Push date: ", time);
-  const record = {
-    name: "push",
-    date: time,
-  };
-  records.push(record);
-  // console.log(`Timer pushed: ${timerId}\n**********`);
-  timerId = setTimeout(write, 3000, "OK\n");
-  // console.log(`A Timer is on: ${timerId}`);
+  if (data === "OK") {
+    pushCount = pushCount + 1;
+    const time = Date.now();
+    // const today = new Date(time);
+    console.log("Push count: ", pushCount);
+    // console.log("Push date: ", time);
+    const record = {
+      name: "push",
+      date: time,
+    };
+    records.push(record);
+    // console.log(`Timer pushed: ${timerId}\n**********`);
+    timerId = setTimeout(write, 3000, "OK\n");
+    // console.log(`A Timer is on: ${timerId}`);
+  } else {
+    // カウントせずにタイマー再開
+    timerId = setTimeout(write, 3000, "OK\n");
+  }
 });
 
 const write = (data) => {
